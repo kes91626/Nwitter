@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { authService, firebaseInstance } from 'fbase';
+import { authService } from 'fbase';
 import {
   createUserWithEmailAndPassword,
   GithubAuthProvider,
@@ -47,19 +47,12 @@ const Auth = () => {
       target: { name },
     } = event;
     let provider;
-    try {
-      if (name === 'google') {
-        provider = new GoogleAuthProvider();
-        const result = await signInWithPopup(authService, provider);
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-      } else if (name === 'github') {
-        provider = new GithubAuthProvider();
-        const result = await signInWithPopup(authService, provider);
-        const credential = GithubAuthProvider.credentialFromResult(result);
-      }
-    } catch (error) {
-      console.log(error);
+    if (name === 'google') {
+      provider = new GoogleAuthProvider();
+    } else if (name === 'github') {
+      provider = new GithubAuthProvider();
     }
+    await signInWithPopup(authService, provider);
   };
   return (
     <div>
