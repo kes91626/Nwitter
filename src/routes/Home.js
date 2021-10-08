@@ -1,12 +1,13 @@
 import { collection, onSnapshot, query, addDoc } from 'firebase/firestore';
 import { dbService, storageService } from 'fbase';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Nweet from 'components/Nweet';
 import { getDownloadURL, ref, uploadString } from '@firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
 const Home = ({ userObj }) => {
   console.log(userObj);
+  const fileRef = useRef();
   const [nweet, setNweet] = useState('');
   const [nweets, setNweets] = useState([]);
   const [attachment, setAttachment] = useState('');
@@ -40,6 +41,8 @@ const Home = ({ userObj }) => {
     await addDoc(collection(dbService, 'nweets'), nweetPosting);
     setNweet('');
     setAttachment('');
+    console.log();
+    fileRef.current.value = '';
   };
   const onChange = (event) => {
     const {
@@ -75,7 +78,12 @@ const Home = ({ userObj }) => {
           placeholder="What's on your mind?"
           maxLength={120}
         />
-        <input type="file" accept="image/*" onChange={onFileChange} />
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          onChange={onFileChange}
+        />
         <input type="submit" value="Nweet" />
         {attachment && (
           <div>

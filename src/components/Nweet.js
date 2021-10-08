@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
-import { dbService } from 'fbase';
+import { dbService, storageService } from 'fbase';
 import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { deleteObject, ref } from '@firebase/storage';
 
 const Nweet = ({ nweetObj, isOwner }) => {
   console.log('nweetObj : ', nweetObj);
   const [editing, setEditing] = useState(false);
   const [newNweet, setNewNweet] = useState(nweetObj.text);
-  const NweetTextRef = doc(dbService, 'nweets', `${nweetObj.id}`);
+  const NweetDoc = doc(dbService, 'nweets', `${nweetObj.id}`);
+  const Nweetref = ref(storageService, nweetObj.attachmentUrl);
   const onDeleteClick = async () => {
     const ok = window.confirm('Are you sure you want to delete this nweet?');
     if (ok) {
-      await deleteDoc(NweetTextRef);
+      await deleteDoc(NweetDoc);
+      await deleteObject(Nweetref);
     }
   };
   const toggleEditing = () => setEditing((prev) => !prev);
   const onSubmit = async (event) => {
     event.preventDefault();
-    await updateDoc(NweetTextRef, {
+    await updateDoc(NweetDoc, {
       text: newNweet,
     });
     setEditing(false);
@@ -33,7 +36,7 @@ const Nweet = ({ nweetObj, isOwner }) => {
         <>
           <form onSubmit={onSubmit}>
             <input
-              type="text"
+              type="nweet"
               placeholder="Edit your nweet"
               value={newNweet}
               required
@@ -45,15 +48,17 @@ const Nweet = ({ nweetObj, isOwner }) => {
         </>
       ) : (
         <>
-          <h4>{nweetObj.text}</h4>
+          <h4>{nweetObj.nweet}</h4>
+          {nweetObj.attachmentUrl && (
+            <img
+              src={nweetObj.attachmentUrl}
+              width="50px"
+              height="50px"
+              alt="img"
+            />
+          )}
           {isOwner && (
             <>
-              <img
-                src={nweetObj.attachmentUrl}
-                width="50px"
-                height="50px"
-                alt="img"
-              />
               <button onClick={onDeleteClick}>Delete Nweet</button>
               <button onClick={toggleEditing}>Edit Nweet</button>
             </>
